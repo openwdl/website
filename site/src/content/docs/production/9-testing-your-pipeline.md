@@ -68,32 +68,41 @@ See the official [Sprocket testing guide] for the complete test format and avail
 assertions. Here, we'll define two focused cases and use a few assertions that matter to
 `summarize_reference`.
 
-## Create the FASTA fixtures
+## Create the test fixtures
 
 A **fixture** is a small, controlled input created specifically for testing. We already
-have `small-reference.fasta`, but create it here with the malformed case so the complete
-test setup is visible.
+have `small-reference.fasta`, but create it here with the malformed FASTA and validation
+report so the complete test setup is visible.
 
 ::::tabs{sync="platform"}
 :::tab{label="macOS"}
 ```bash
 mkdir -p tests/fixtures
-code tests/fixtures/small-reference.fasta tests/fixtures/malformed.fasta
-# Visual Studio Code opens both files.
+code \
+  tests/fixtures/small-reference.fasta \
+  tests/fixtures/malformed.fasta \
+  tests/fixtures/validation.json
+# Visual Studio Code opens all three files.
 ```
 :::
 :::tab{label="Linux"}
 ```bash
 mkdir -p tests/fixtures
-code tests/fixtures/small-reference.fasta tests/fixtures/malformed.fasta
-# Visual Studio Code opens both files.
+code \
+  tests/fixtures/small-reference.fasta \
+  tests/fixtures/malformed.fasta \
+  tests/fixtures/validation.json
+# Visual Studio Code opens all three files.
 ```
 :::
 :::tab{label="Windows"}
 ```powershell
 New-Item -ItemType Directory -Force tests\fixtures | Out-Null
-code tests\fixtures\small-reference.fasta tests\fixtures\malformed.fasta
-# Visual Studio Code opens both files.
+code `
+  tests\fixtures\small-reference.fasta `
+  tests\fixtures\malformed.fasta `
+  tests\fixtures\validation.json
+# Visual Studio Code opens all three files.
 ```
 :::
 ::::
@@ -114,6 +123,16 @@ ACGTZ
 
 `Z` is not a valid IUPAC nucleotide symbol, so `ref-summary` must reject the second file.
 The two inputs differ in one clear way, making a failure easier to interpret.
+
+Put this successful preflight report in `validation.json`:
+
+```json
+{"schema_version": 1, "reference_count": 1}
+```
+
+The workflow normally creates this file by running `validate_references`. These focused
+task tests supply an equivalent fixture so `summarize_reference` can confirm that
+validation finished before it reads either FASTA.
 
 ## Add a successful test
 
@@ -137,6 +156,9 @@ summarize_reference:
       # Run once with the manually created valid fixture.
       fasta:
         - small-reference.fasta
+      # Supply the successful preflight report required by the task.
+      validation:
+        - validation.json
     # Describe what must be true after the task succeeds.
     assertions:
       # Confirm that the task returns its JSON file.
@@ -145,9 +167,9 @@ summarize_reference:
           - Name: summary.json
 ```
 
-The top-level key names the task. `inputs` supplies the FASTA fixture, while `assertions`
-describes the expected behavior. Here, we confirm that the task returns a file named
-`summary.json`. We'll compare every value inside that file later.
+The top-level key names the task. `inputs` supplies the FASTA and validation fixtures,
+while `assertions` describes the expected behavior. Here, we confirm that the task
+returns a file named `summary.json`. We'll compare every value inside that file later.
 
 ## Add an expected failure
 
@@ -161,6 +183,8 @@ FASTA as a second case:
       # Run once with the fixture containing an invalid Z symbol.
       fasta:
         - malformed.fasta
+      validation:
+        - validation.json
     assertions:
       # This case passes only when the task rejects the input.
       should_fail: true
@@ -181,15 +205,18 @@ summarize_reference:
     inputs:
       fasta:
         - small-reference.fasta
+      validation:
+        - validation.json
     assertions:
       outputs:
         metrics_json:
           - Name: summary.json
-
   - name: malformed-fasta
     inputs:
       fasta:
         - malformed.fasta
+      validation:
+        - validation.json
     assertions:
       should_fail: true
       stderr:
@@ -251,8 +278,8 @@ sprocket.exe dev test wdl\tasks\summarize_reference.wdl `
 ::::
 
 `--workspace .` uses the current repository as the test workspace.
-`--fixtures-dir` tells Sprocket where the named FASTA files live. `--clean-all` removes
-the temporary test runs when the command finishes.
+`--fixtures-dir` tells Sprocket where the named fixture files live. `--clean-all`
+removes the temporary test runs when the command finishes.
 
 Make sure Sprocket reports both cases. "No tests executed" does not mean success; it
 usually means the YAML file was not discovered beside the WDL file.
@@ -320,10 +347,10 @@ git status --short
 
 ## What you learned
 
-You created two FASTA fixtures and an automated Sprocket test file for the
-`summarize_reference` task. The successful case checks known measurements without a
-network call. The expected-failure case proves that malformed sequence data is rejected
-for the right reason.
+You created two FASTA fixtures, a successful validation fixture, and an automated
+Sprocket test file for the `summarize_reference` task. The successful case checks known
+measurements without a network call. The expected-failure case proves that malformed
+sequence data is rejected for the right reason.
 
 You also compared the complete JSON result with an independently reviewed file.
 

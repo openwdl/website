@@ -51,20 +51,65 @@ them before expensive work, and gather their results into one report.
 
 ## Share types between documents
 
-`ReferenceFile` and `FastaMetrics` currently live beside `summarize_reference`. The
-workflow needs those types too. Move them into `wdl/types.wdl` so both documents use the
-same definitions.
+`FastaMetrics` currently lives beside `summarize_reference`. The workflow needs that
+type too, along with a type that identifies each local reference. Create
+`wdl/types.wdl`, move `FastaMetrics` into it, and add `ReferenceFile` above it:
 
-Import them without aliases:
+```wdl
+version 1.3
+
+struct ReferenceFile {
+    meta {
+        description: "A localized FASTA file and the stable identity preserved with it."
+    }
+
+    parameter_meta {
+        accession: "Stable reference identifier shown in audit reports."
+        label: "Unique human-readable name shown in audit reports."
+        fasta: "Uncompressed nucleotide FASTA file."
+    }
+
+    String accession
+    String label
+    File fasta
+}
+
+struct FastaMetrics {
+    meta {
+        description: "Deterministic sequence counts emitted by ref-summary."
+    }
+
+    parameter_meta {
+        schema_version: "Version of the ref-summary JSON schema."
+        sequence_count: "Number of FASTA records."
+        total_bases: "Total number of nucleotide symbols."
+        gc_bases: "Number of literal G and C bases."
+        n_bases: "Number of N bases."
+        ambiguous_bases: "Number of other IUPAC symbols."
+        minimum_length: "Length of the shortest FASTA record."
+        maximum_length: "Length of the longest FASTA record."
+    }
+
+    Int schema_version
+    Int sequence_count
+    Int total_bases
+    Int gc_bases
+    Int n_bases
+    Int ambiguous_bases
+    Int minimum_length
+    Int maximum_length
+}
+```
+
+Import the shared types without aliases in `summarize_reference.wdl`:
 
 ```wdl
 import "../types.wdl"
 ```
 
 An **import** makes structs from another WDL document available by their regular names.
-After the import, both the task and workflow can use `ReferenceFile` and `FastaMetrics`
-directly. Update `summarize_reference.wdl` to import the file and remove its local copies
-of the structs. Its behavior does not change.
+Remove the local `FastaMetrics` definition from `summarize_reference.wdl`. Its behavior
+does not change.
 
 ## Call one task
 
@@ -74,6 +119,7 @@ Create `wdl/workflows/audit_references.wdl`:
 version 1.3
 
 import "../tasks/summarize_reference.wdl" as summarize
+#@ except: UnusedImport
 import "../types.wdl"
 
 workflow audit_references {
@@ -93,6 +139,11 @@ workflow audit_references {
     }
 }
 ```
+
+Sprocket 0.30.1 does not yet count the workflow's imported struct use when it checks
+whether an import namespace is used. The `#@ except: UnusedImport` directive suppresses
+that one incorrect diagnostic for the import immediately below it; the rule remains
+active everywhere else.
 
 The `call` statement adds `summarize_reference` as a node. The workflow passes its
 `reference` and `ref_summary_container` inputs into the task. The task's outputs then
@@ -186,6 +237,7 @@ After these changes, `wdl/workflows/audit_references.wdl` contains:
 version 1.3
 
 import "../tasks/summarize_reference.wdl" as summarize
+#@ except: UnusedImport
 import "../types.wdl"
 
 workflow audit_references {
@@ -223,10 +275,25 @@ Create `wdl/tasks/validate_references.wdl` with a preflight task named
 expensive work begins. It checks that accession and label arrays have equal lengths,
 contain no duplicates, and contain no blank values.
 
-The validation task uses a regular Python image tag:
+The complete validation task uses a regular Python image tag:
 
 ```wdl
+version 1.3
+
 task validate_references {
+    meta {
+        description: "Reject mismatched, duplicate, or blank reference identifiers before analysis."
+        outputs: {
+            report: "JSON marker recording the number of validated references.",
+        }
+    }
+
+    parameter_meta {
+        accessions_json: "JSON array of ordered stable reference identifiers."
+        labels_json: "JSON array of ordered unique report labels."
+        container: "Container image containing Python."
+    }
+
     input {
         env String accessions_json
         env String labels_json
@@ -301,9 +368,77 @@ call validation.validate_references {
 }
 ```
 
-Add a `File validation` input to `summarize_reference` and check that the report exists
-before running `ref-summary`. Then pass `validate_references.report` into every scattered
-summary call.
+Add this entry to the existing `parameter_meta` section in `summarize_reference`:
+
+```wdl
+validation: "Successful preflight validation report for the complete request."
+```
+
+Add its required input:
+
+```wdl
+File validation
+```
+
+Check that the localized report is not empty before running `ref-summary`:
+
+```bash
+test -s "~{validation}"
+```
+
+Then pass `validate_references.report` into every scattered summary call.
+
+After these changes, `wdl/tasks/summarize_reference.wdl` contains:
+
+```wdl
+version 1.3
+
+import "../types.wdl"
+
+task summarize_reference {
+    meta {
+        description: "Calculate deterministic sequence metrics for one FASTA reference."
+        outputs: {
+            metrics_json: "JSON sequence metrics emitted by ref-summary.",
+            metrics: "Typed sequence metrics read from the JSON output.",
+        }
+    }
+
+    parameter_meta {
+        fasta: "Uncompressed nucleotide FASTA file to summarize."
+        validation: "Successful preflight validation report for the complete request."
+        container: "Container image containing ref-summary, preferably pinned by digest."
+        cpu: "Number of processor cores to request."
+        memory: "Amount of memory to request, including its unit."
+    }
+
+    input {
+        File fasta
+        File validation
+        String container = "ref-summary:v0.1.0"
+        Int cpu = 1
+        String memory = "256 MiB"
+    }
+
+    command <<<
+        set -euo pipefail
+        test -s "~{validation}"
+        ref-summary "~{fasta}" --output summary.json
+    >>>
+
+    output {
+        File metrics_json = "summary.json"
+        FastaMetrics metrics = read_json(metrics_json)
+    }
+
+    requirements {
+        container: container
+        cpu: cpu
+        memory: memory
+        max_retries: 1
+    }
+}
+```
 
 This creates an edge from validation to every summary task. If validation fails, the
 report does not exist and none of the expensive summary calls can begin.
@@ -315,6 +450,7 @@ version 1.3
 
 import "../tasks/summarize_reference.wdl" as summarize
 import "../tasks/validate_references.wdl" as validation
+#@ except: UnusedImport
 import "../types.wdl"
 
 workflow audit_references {
@@ -354,8 +490,140 @@ workflow audit_references {
 ## Gather the results
 
 The scatter produces one JSON summary per reference. We want one audit report, so create
-an `aggregate_summaries` task that accepts the ordered identities and summary files and
-uses a regular `python:3.14-slim` container.
+`wdl/tasks/aggregate_summaries.wdl`. It contains one task that combines the ordered
+identities and summary files, plus a second task that renders the optional TSV:
+
+```wdl
+version 1.3
+
+task aggregate_summaries {
+    meta {
+        description: "Combine ordered per-reference metrics into one versioned JSON report."
+        outputs: {
+            report: "Combined JSON audit report with ref-summary provenance.",
+        }
+    }
+
+    parameter_meta {
+        accessions_json: "JSON array of ordered stable reference identifiers."
+        labels_json: "JSON array of ordered unique report labels."
+        metrics: "Ordered JSON metric files emitted by ref-summary."
+        ref_summary_version: "Version of ref-summary used for the audit."
+        ref_summary_container: "Container image used to execute ref-summary."
+        container: "Container image containing Python."
+    }
+
+    input {
+        env String accessions_json
+        env String labels_json
+        Array[File]+ metrics
+        env String ref_summary_version
+        env String ref_summary_container
+        String container = "python:3.14-slim"
+    }
+
+    File metrics_manifest = write_lines(metrics)
+
+    command <<<
+        set -euo pipefail
+        python3 - "~{metrics_manifest}" <<'PY'
+        import json
+        import os
+        import pathlib
+        import sys
+
+        accessions = json.loads(os.environ["accessions_json"])
+        labels = json.loads(os.environ["labels_json"])
+        paths = pathlib.Path(sys.argv[1]).read_text().splitlines()
+        if not (len(accessions) == len(labels) == len(paths)):
+            raise SystemExit("accessions, labels, and metrics must have equal lengths")
+
+        references = []
+        for accession, label, path in zip(accessions, labels, paths, strict=True):
+            metrics = json.loads(pathlib.Path(path).read_text())
+            references.append({"accession": accession, "label": label, **metrics})
+
+        report = {
+            "schema_version": 1,
+            "ref_summary_version": os.environ["ref_summary_version"],
+            "ref_summary_container": os.environ["ref_summary_container"],
+            "references": references,
+        }
+        pathlib.Path("audit.json").write_text(json.dumps(report, indent=2) + "\n")
+        PY
+    >>>
+
+    output {
+        File report = "audit.json"
+    }
+
+    requirements {
+        container: container
+        cpu: 1
+        memory: "256 MiB"
+    }
+}
+
+task render_tsv {
+    meta {
+        description: "Convert a combined JSON audit report to a stable TSV artifact."
+        outputs: {
+            report_tsv: "Flat TSV audit report with one row per reference.",
+        }
+    }
+
+    parameter_meta {
+        report: "Combined JSON audit report."
+        container: "Container image containing Python."
+    }
+
+    input {
+        File report
+        String container = "python:3.14-slim"
+    }
+
+    command <<<
+        set -euo pipefail
+        python3 - "~{report}" <<'PY'
+        import csv
+        import json
+        import pathlib
+        import sys
+
+        report = json.loads(pathlib.Path(sys.argv[1]).read_text())
+        fields = [
+            "accession", "label", "sequence_count", "total_bases", "gc_bases",
+            "n_bases", "ambiguous_bases", "minimum_length", "maximum_length",
+        ]
+        with pathlib.Path("audit.tsv").open("w", newline="") as handle:
+            writer = csv.DictWriter(
+                handle,
+                fieldnames=fields,
+                delimiter="\t",
+                lineterminator="\n",
+                extrasaction="ignore",
+            )
+            writer.writeheader()
+            writer.writerows(report["references"])
+        PY
+    >>>
+
+    output {
+        File report_tsv = "audit.tsv"
+    }
+
+    requirements {
+        container: container
+        cpu: 1
+        memory: "256 MiB"
+    }
+}
+```
+
+Both tasks use a regular `python:3.14-slim` container. The aggregation task writes the
+gathered metric file paths to an ordered manifest. Each scattered task writes a file
+named `summary.json`, so the manifest preserves every full localized path without relying
+on duplicate basenames or a filesystem glob.
 
 This pattern is called **scatter-gather**:
 
@@ -440,9 +708,26 @@ version 1.3
 import "../tasks/aggregate_summaries.wdl" as aggregate
 import "../tasks/summarize_reference.wdl" as summarize
 import "../tasks/validate_references.wdl" as validation
+#@ except: UnusedImport
 import "../types.wdl"
 
 workflow audit_references {
+    meta {
+        description: "Validate and summarize ordered local reference FASTA files."
+        outputs: {
+            audit_json: "Canonical combined JSON audit report.",
+            audit_tsv: "Optional flat TSV report.",
+            summaries: "Ordered per-reference JSON metric files.",
+        }
+    }
+
+    parameter_meta {
+        references: "Ordered non-empty references to audit."
+        ref_summary_container: "Container image containing ref-summary."
+        ref_summary_version: "Version of ref-summary recorded in report provenance."
+        emit_tsv: "Whether to render the optional TSV report."
+    }
+
     input {
         Array[ReferenceFile]+ references
         String ref_summary_container = "ref-summary:v0.1.0"
