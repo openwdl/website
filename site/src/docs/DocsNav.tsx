@@ -2,6 +2,7 @@ import { useEffect, useId, useState } from "react";
 import { FiChevronRight } from "react-icons/fi";
 import type { CompiledDocPage } from "../../scripts/docs/types";
 import { docHref } from "./docHref";
+import { docTitle } from "./docTitle";
 import styles from "./DocsNav.module.css";
 
 /** Props for {@link DocsNav}. */
@@ -92,7 +93,7 @@ export function DocsNav({ page, pages, id, open }: DocsNavProps) {
                       className={styles.link}
                       aria-current={visiblePage.slug === page.slug ? "page" : undefined}
                     >
-                      {visiblePage.title}
+                      {docTitle(visiblePage)}
                     </a>
                   </li>
                 ))}

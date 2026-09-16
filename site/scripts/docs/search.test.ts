@@ -52,10 +52,21 @@ const referencePage: CompiledDocPage = {
   headings: [{ depth: 2, id: "changes", text: "Changes" }],
 };
 
-const pages: CompiledDocPage[] = [tasksPage, stdlibPage, referencePage];
+const productionPage: CompiledDocPage = {
+  ...tasksPage,
+  title: "Production WDL pipeline",
+  description: "Build and release a production pipeline.",
+  slug: "/docs/production/",
+  section: "production",
+  group: "Overview",
+  sourcePath: "production/overview.md",
+  body: "## Course map\n\nProduction course details.",
+  headings: [{ depth: 2, id: "course-map", text: "Course map" }],
+};
 
-const SECTION_KEYS = ["learn", "stdlib", "upgrading"] as const;
+const pages: CompiledDocPage[] = [tasksPage, productionPage, stdlibPage, referencePage];
 
+const SECTION_KEYS = ["learn", "production", "stdlib", "upgrading"] as const;
 let output: string;
 
 beforeEach(async () => {

@@ -32,6 +32,13 @@ const sectionPages: CompiledDocPage[] = [
   tasksPage,
   {
     ...tasksPage,
+    title: "Production WDL pipeline",
+    slug: "/docs/production/",
+    section: "production",
+    group: "Overview",
+  },
+  {
+    ...tasksPage,
     title: "Array",
     slug: "/docs/stdlib/array/",
     section: "stdlib",
@@ -95,7 +102,7 @@ it("places the search control in the section navigation", () => {
   expect(screen.queryByText("OpenWDL Docs")).not.toBeInTheDocument();
 });
 
-it("links Getting started, Standard library, and Upgrading in order", () => {
+it("links all documentation sections in learning order", () => {
   render(
     <DocsShell page={tasksPage} pages={sectionPages}>
       <h1>Tasks</h1>
@@ -108,12 +115,14 @@ it("links Getting started, Standard library, and Upgrading in order", () => {
   const links = within(sections).getAllByRole("link");
   expect(links.map((link) => link.textContent)).toEqual([
     "Getting started",
+    "Production guide",
     "Standard library",
     "Upgrading",
   ]);
   expect(links[0]).toHaveAttribute("href", "/docs/start/overview/");
-  expect(links[1]).toHaveAttribute("href", "/docs/stdlib/array/");
-  expect(links[2]).toHaveAttribute("href", "/docs/reference/upgrade-guide/");
+  expect(links[1]).toHaveAttribute("href", "/docs/production/");
+  expect(links[2]).toHaveAttribute("href", "/docs/stdlib/array/");
+  expect(links[3]).toHaveAttribute("href", "/docs/reference/upgrade-guide/");
   expect(within(sections).queryByRole("link", { name: "Reference" })).toBeNull();
   expect(within(sections).queryByRole("link", { name: "Learn WDL" })).toBeNull();
   expect(within(sections).queryByRole("link", { name: "Patterns" })).toBeNull();
@@ -204,6 +213,31 @@ it("passes heading code literals straight through to the page outline", () => {
   expect(
     within(toc).getByRole("link", { name: "New task.max_retries variable" }),
   ).toHaveAttribute("href", "#new-taskmax_retries-variable");
+});
+
+it("renders heading badges in the page outline", () => {
+  const page: CompiledDocPage = {
+    ...tasksPage,
+    headings: [
+      {
+        depth: 2,
+        id: "build-from-source-bonus",
+        text: "Build from source Bonus",
+        parts: [
+          { type: "text", value: "Build from source " },
+          { type: "badge", value: "Bonus" },
+        ],
+      },
+    ],
+  };
+  render(
+    <DocsShell page={page} pages={pages}>
+      <h1>Tasks</h1>
+    </DocsShell>,
+  );
+
+  const toc = screen.getByRole("navigation", { name: "On this page" });
+  expect(within(toc).getByText("Bonus").className).toContain("Badge");
 });
 
 it("highlights the heading currently passing through the reading position", () => {

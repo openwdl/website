@@ -1,10 +1,11 @@
 import { useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
-import { ToastProvider, NavBar, Footer, Disclosure, Toc } from "@openwdl/ui";
+import { ToastProvider, NavBar, Footer, Disclosure } from "@openwdl/ui";
 import type { CompiledDocPage } from "../../scripts/docs/types";
 import { docHref } from "./docHref";
 import { DocsNav } from "./DocsNav";
 import { DocsSearch } from "./DocsSearch";
+import { DocsToc } from "./DocsToc";
 import { DOC_SECTIONS } from "./docsSections";
 import styles from "./DocsShell.module.css";
 
@@ -110,7 +111,7 @@ export function DocsShell({ page, pages, children }: DocsShellProps) {
          * which beats any ancestor declaration, so the override has to be
          * inline on the element itself.
          */}
-        <Toc
+        <DocsToc
           key={page.slug}
           id={TOC_ID}
           headings={page.headings}

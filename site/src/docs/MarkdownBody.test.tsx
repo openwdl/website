@@ -48,6 +48,21 @@ it("renders inline code without a copy button", () => {
   expect(screen.getByText(/task/i)).toBeInTheDocument();
 });
 
+it("renders keyboard-key directives as kbd elements", () => {
+  render(<MarkdownBody source={"Press :kbd[Command] + :kbd[Space]."} />);
+
+  expect(screen.getByText("Command").tagName).toBe("KBD");
+  expect(screen.getByText("Space").tagName).toBe("KBD");
+});
+
+it("renders badge directives with the design-system badge", () => {
+  render(<MarkdownBody source={"## Build from source :badge[Bonus]"} />);
+
+  const badge = screen.getByText("Bonus");
+  expect(badge.tagName).toBe("SPAN");
+  expect(badge.className).toContain("Badge");
+});
+
 it("highlights the inline import keyword as WDL", () => {
   render(<MarkdownBody source={"Use an `import` statement with `inputs.json`."} />);
 

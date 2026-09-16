@@ -21,7 +21,7 @@ export interface SearchManifest {
   gzipBytes: number;
 }
 
-const ALL_SECTIONS: readonly DocSection[] = ["learn", "stdlib", "upgrading"];
+const ALL_SECTIONS: readonly DocSection[] = ["learn", "production", "stdlib", "upgrading"];
 
 /** Remove Markdown syntax, leaving plain indexable text. */
 function stripMarkdown(raw: string): string {
@@ -145,6 +145,7 @@ export async function writeSearchChunks(
   // Pre-initialize with every DocSection key — proves completeness, no cast needed.
   const sections: Record<DocSection, { filename: string; documentCount: number }> = {
     learn: { filename: "section-learn.json", documentCount: 0 },
+    production: { filename: "section-production.json", documentCount: 0 },
     stdlib: { filename: "section-stdlib.json", documentCount: 0 },
     upgrading: { filename: "section-upgrading.json", documentCount: 0 },
   };

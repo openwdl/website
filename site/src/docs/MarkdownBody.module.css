@@ -50,9 +50,26 @@ div.markdown {
   text-wrap: balance;
 }
 
+.headingBadge {
+  margin-left: 0.35rem;
+  vertical-align: middle;
+}
+
 .markdown a {
   text-decoration-thickness: 1px;
   text-underline-offset: 0.16em;
+}
+
+.markdown kbd {
+  display: inline-block;
+  padding: 0.1rem 0.35rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.3rem;
+  background: color-mix(in srgb, var(--text) 4%, var(--surface));
+  box-shadow: inset 0 -1px 0 var(--border-strong);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  line-height: 1.4;
 }
 
 /* Local documentation screenshots stretch to the full measure. `Prose` already

@@ -76,6 +76,27 @@ it("opens all groups by default", () => {
   ).toHaveAttribute("aria-expanded", "true");
 });
 
+it("renders inline code from a page heading in the navigation title", () => {
+  const page: CompiledDocPage = {
+    ...pages[1],
+    title: "Explore ref-summary",
+    headings: [{
+      depth: 1,
+      id: "explore-ref-summary",
+      text: "Explore ref-summary",
+      parts: [
+        { type: "text", value: "Explore " },
+        { type: "code", value: "ref-summary" },
+      ],
+    }],
+  };
+
+  render(<DocsNav page={page} pages={[page]} />);
+
+  const link = screen.getByRole("link", { name: "Explore ref-summary" });
+  expect(within(link).getByText("ref-summary").tagName).toBe("CODE");
+});
+
 it("allows groups to be expanded and collapsed independently", async () => {
   const user = userEvent.setup();
   render(<DocsNav page={pages[1]} pages={pages} />);

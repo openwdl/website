@@ -3,7 +3,7 @@
  */
 
 /** Top-level documentation sections. */
-export type DocSection = "learn" | "stdlib" | "upgrading";
+export type DocSection = "learn" | "production" | "stdlib" | "upgrading";
 
 /** Page kind for navigation and display treatment. */
 export type DocKind = "tutorial" | "guide" | "pattern" | "reference";
@@ -25,7 +25,7 @@ export interface DocFrontmatter {
 
 /** A single heading extracted from a page body. */
 export interface DocHeadingPart {
-  type: "text" | "code";
+  type: "text" | "code" | "badge";
   value: string;
 }
 

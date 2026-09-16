@@ -7,6 +7,7 @@ import type { Element } from "hast";
 import {
   Callout,
   type CalloutVariant,
+  Badge,
   Code,
   CodeBlock,
   Prose,
@@ -14,7 +15,7 @@ import {
 } from "@openwdl/ui";
 import { DocsTabs } from "./DocsTabs";
 import { docHref } from "./docHref";
-import { markdownDirectives } from "@openwdl/ui/markdown";
+import { markdownDirectives } from "./markdownDirectives";
 import styles from "./MarkdownBody.module.css";
 
 const CALLOUT_VARIANTS = new Set<string>(["note", "tip", "warning", "danger"]);
@@ -122,7 +123,8 @@ export function MarkdownBody({ source, headingAliases = {} }: MarkdownBodyProps)
           );
         }
         if (dir === "docs-tabs") {
-          return <DocsTabs>{children}</DocsTabs>;
+          const sync = String(node?.properties?.["data-sync"] ?? "");
+          return <DocsTabs sync={sync || undefined}>{children}</DocsTabs>;
         }
         if (dir === "docs-tab") {
           // Preserve data-label so DocsTabs.extractTabs can read the tab label.
@@ -134,6 +136,13 @@ export function MarkdownBody({ source, headingAliases = {} }: MarkdownBodyProps)
           );
         }
         return <div>{children}</div>;
+      },
+      span({ node, children }) {
+        const dir = node?.properties?.["data-directive"];
+        if (dir === "badge") {
+          return <Badge variant="accent" className={styles.headingBadge}>{children}</Badge>;
+        }
+        return <span>{children}</span>;
       },
       table({ node, children, ...props }) {
         void node;

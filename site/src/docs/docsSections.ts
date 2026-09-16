@@ -6,12 +6,14 @@ export const DOC_SECTIONS: readonly {
   label: string;
 }[] = [
   { key: "learn", label: "Getting started" },
+  { key: "production", label: "Production guide" },
   { key: "stdlib", label: "Standard library" },
   { key: "upgrading", label: "Upgrading" },
 ];
 
 const SECTION_LABELS: Record<DocSection, string> = {
   learn: "Getting started",
+  production: "Production guide",
   stdlib: "Standard library",
   upgrading: "Upgrading",
 };

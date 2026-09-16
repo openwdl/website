@@ -90,6 +90,27 @@ it("renders the page title as the h1", () => {
   expect(h1s[0]).toHaveTextContent("Tasks");
 });
 
+it("renders inline code from the Markdown page title", () => {
+  const page: CompiledDocPage = {
+    ...tasksPage,
+    title: "Explore ref-summary",
+    headings: [{
+      depth: 1,
+      id: "explore-ref-summary",
+      text: "Explore ref-summary",
+      parts: [
+        { type: "text", value: "Explore " },
+        { type: "code", value: "ref-summary" },
+      ],
+    }],
+  };
+
+  render(<DocsPage page={page} pages={[page]} />);
+
+  const heading = screen.getByRole("heading", { level: 1, name: "Explore ref-summary" });
+  expect(within(heading).getByText("ref-summary").tagName).toBe("CODE");
+});
+
 it("preserves canonical and legacy anchors on the shell title", () => {
   const page: CompiledDocPage = {
     ...tasksPage,

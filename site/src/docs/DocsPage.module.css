@@ -48,3 +48,7 @@
 .breadcrumbs [aria-current="page"] {
   color: var(--accent);
 }
+
+.breadcrumbs code {
+  font-family: var(--font-mono);
+}

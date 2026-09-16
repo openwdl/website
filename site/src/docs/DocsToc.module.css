@@ -1,0 +1,61 @@
+.toc {
+  --toc-offset: 0px;
+  position: sticky;
+  top: calc(var(--nav-h) + var(--toc-offset));
+  align-self: start;
+  height: calc(100vh - var(--nav-h) - var(--toc-offset));
+  padding: 1rem 0;
+  overflow-y: auto;
+  border-left: 1px solid var(--chrome-border);
+  background: var(--surface);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+}
+
+.label {
+  padding: 0 0.75rem 0.5rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  padding-left: calc(var(--toc-depth, 0) * 0.75rem);
+  line-height: 1.4;
+}
+
+.link {
+  display: block;
+  padding: 0.25rem 0.75rem;
+  border-left: 2px solid transparent;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.link:hover {
+  border-left-color: var(--border);
+  color: var(--text);
+}
+
+.link[aria-current="location"] {
+  border-left-color: var(--accent);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.codeLiteral {
+  overflow-wrap: anywhere;
+}
+
+.badge {
+  margin-left: 0.3rem;
+  vertical-align: middle;
+}

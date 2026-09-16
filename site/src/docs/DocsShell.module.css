@@ -66,12 +66,14 @@
 }
 
 .sectionLink {
-  display: block;
+  display: inline-flex;
+  align-items: center;
   padding: 0.85rem 0.75rem;
   font-family: var(--font-sans);
   font-size: 0.875rem;
   color: var(--text-muted);
   text-decoration: none;
+  white-space: nowrap;
   border-bottom: 2px solid transparent;
   transition:
     color var(--motion-control-duration) var(--motion-control-ease),
@@ -119,7 +121,7 @@
 }
 
 .article > h1 {
-  max-width: 18ch;
+  max-width: 28ch;
   margin: 0 0 1.5rem;
   font-size: clamp(2.5rem, 4vw, 3rem);
   font-weight: 700;

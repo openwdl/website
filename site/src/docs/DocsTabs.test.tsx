@@ -1,6 +1,27 @@
-import { render, screen, within } from "@testing-library/react";
+import { beforeEach } from "vitest";
+import { act } from "react";
+import { render, screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { DocsTabs } from "./DocsTabs";
 import { MarkdownBody } from "./MarkdownBody";
+import { markdownDirectives } from "./markdownDirectives";
+
+beforeEach(() => {
+  const values = new Map<string, string>();
+  Object.defineProperty(window, "localStorage", {
+    configurable: true,
+    value: {
+      clear: () => values.clear(),
+      getItem: (key: string) => values.get(key) ?? null,
+      key: (index: number) => [...values.keys()][index] ?? null,
+      get length() {
+        return values.size;
+      },
+      removeItem: (key: string) => values.delete(key),
+      setItem: (key: string, value: string) => values.set(key, value),
+    } satisfies Storage,
+  });
+});
 
 const tabsSource = [
   "::::tabs",
@@ -155,4 +176,160 @@ it("renders nested markdown inside a tab panel", () => {
   );
   const panel = screen.getByRole("tabpanel");
   expect(within(panel).getByText("wdl run")).toBeInTheDocument();
+});
+
+it("renders an approach selector inside a platform tab", () => {
+  const source = [
+    '::::::tabs{sync="platform"}',
+    ':::::tab{label="macOS"}',
+    "::::tabs",
+    ':::tab{label="Homebrew"}',
+    "Install with brew.",
+    ":::",
+    ':::tab{label="Manual binary"}',
+    "Install a binary.",
+    ":::",
+    "::::",
+    ":::::",
+    ':::::tab{label="Linux"}',
+    "Linux instructions.",
+    ":::::",
+    ':::::tab{label="Windows"}',
+    "Windows instructions.",
+    ":::::",
+    "::::::",
+  ].join("\n");
+
+  render(<MarkdownBody source={source} />);
+
+  const macPanel = screen.getByRole("tabpanel", { name: "macOS" });
+  expect(within(macPanel).getByRole("tab", { name: "Homebrew" })).toBeInTheDocument();
+  expect(within(macPanel).getByRole("tab", { name: "Manual binary" })).toBeInTheDocument();
+});
+
+const syncedPlatformSource = [
+  '::::tabs{sync="platform"}',
+  ':::tab{label="macOS"}',
+  "macOS command one",
+  ":::",
+  ':::tab{label="Linux"}',
+  "Linux command one",
+  ":::",
+  ':::tab{label="Windows"}',
+  "Windows command one",
+  ":::",
+  "::::",
+  "",
+  '::::tabs{sync="platform"}',
+  ':::tab{label="macOS"}',
+  "macOS command two",
+  ":::",
+  ':::tab{label="Linux"}',
+  "Linux command two",
+  ":::",
+  ':::tab{label="Windows"}',
+  "Windows command two",
+  ":::",
+  "::::",
+].join("\n");
+
+it("synchronizes explicitly marked platform tabs and persists the choice", async () => {
+  window.localStorage.clear();
+  const user = userEvent.setup();
+  render(<MarkdownBody source={syncedPlatformSource} />);
+
+  const linuxTabs = screen.getAllByRole("tab", { name: "Linux" });
+  await user.click(linuxTabs[0]);
+
+  expect(linuxTabs.every((tab) => tab.getAttribute("aria-selected") === "true")).toBe(true);
+  expect(screen.getByText("Linux command one")).toBeVisible();
+  expect(screen.getByText("Linux command two")).toBeVisible();
+  expect(window.localStorage.getItem("openwdl.docs.platform")).toBe("linux");
+});
+
+it("restores the saved platform when a synchronized group mounts", () => {
+  window.localStorage.setItem("openwdl.docs.platform", "windows");
+  render(<MarkdownBody source={syncedPlatformSource} />);
+
+  expect(screen.getAllByRole("tab", { name: "Windows" })[0])
+    .toHaveAttribute("aria-selected", "true");
+  window.localStorage.clear();
+});
+
+it("falls back to the first tab for a stale saved platform", () => {
+  window.localStorage.setItem("openwdl.docs.platform", "beos");
+  render(<MarkdownBody source={syncedPlatformSource} />);
+
+  expect(screen.getAllByRole("tab", { name: "macOS" })[0])
+    .toHaveAttribute("aria-selected", "true");
+});
+
+it("synchronizes on the current page when storage is unavailable", async () => {
+  Object.defineProperty(window, "localStorage", {
+    configurable: true,
+    get: () => {
+      throw new Error("storage blocked");
+    },
+  });
+  const user = userEvent.setup();
+  render(<MarkdownBody source={syncedPlatformSource} />);
+
+  const windowsTabs = screen.getAllByRole("tab", { name: "Windows" });
+  await user.click(windowsTabs[0]);
+
+  expect(windowsTabs.every((tab) => tab.getAttribute("aria-selected") === "true")).toBe(true);
+});
+
+it("does not synchronize ordinary tabs that happen to use platform labels", async () => {
+  window.localStorage.clear();
+  const user = userEvent.setup();
+  render(<MarkdownBody source={`${tabsSource}\n\n${tabsSource}`} />);
+
+  const linuxTabs = screen.getAllByRole("tab", { name: "Linux" });
+  await user.click(linuxTabs[0]);
+
+  expect(linuxTabs[0]).toHaveAttribute("aria-selected", "true");
+  expect(linuxTabs[1]).toHaveAttribute("aria-selected", "false");
+  expect(window.localStorage.getItem("openwdl.docs.platform")).toBeNull();
+});
+it("responds to platform changes from another browser tab", async () => {
+  render(<MarkdownBody source={syncedPlatformSource} />);
+  await act(async () => {
+    window.localStorage.setItem("openwdl.docs.platform", "linux");
+    window.dispatchEvent(new StorageEvent("storage", {
+      key: "openwdl.docs.platform",
+      newValue: "linux",
+    }));
+  });
+
+  await waitFor(() => {
+    expect(screen.getAllByRole("tab", { name: "Linux" })[0])
+      .toHaveAttribute("aria-selected", "true");
+  });
+});
+
+
+it("rejects a tab without a tabs container", () => {
+  const tree = {
+    type: "root",
+    children: [{ type: "containerDirective", name: "tab", attributes: { label: "Linux" } }],
+  };
+  expect(() => markdownDirectives()(tree))
+    .toThrow("tab directive must be nested directly inside tabs");
+});
+
+it("rejects non-tab content inside a tabs container", () => {
+  const tree = {
+    type: "root",
+    children: [{
+      type: "containerDirective",
+      name: "tabs",
+      children: [
+        { type: "containerDirective", name: "tab", attributes: { label: "Linux" } },
+        { type: "paragraph", children: [] },
+      ],
+    }],
+  };
+  expect(() => markdownDirectives()(tree))
+    .toThrow("tabs directive may contain only tab directives");
 });

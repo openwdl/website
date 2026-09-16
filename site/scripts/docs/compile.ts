@@ -9,6 +9,7 @@ import type {
   DocHeading,
   DocHeadingPart,
   DocFrontmatter,
+  DocSection,
   StdlibIndexEntry,
 } from "./types";
 import { frontmatterSchema } from "./schema";
@@ -86,6 +87,7 @@ function normalizeBodyHeadings(content: string): string {
 function stripInlineMarkdownSyntax(raw: string): string {
   return raw
     .replace(/`([^`]+)`/g, "$1")
+    .replace(/:badge\[([^\]]+)\]/g, "$1")
     .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
     .replace(/\*{1,2}([^*]+)\*{1,2}/g, "$1")
     // Only treat _ as an emphasis delimiter when it is NOT adjacent to a word
@@ -101,14 +103,18 @@ function stripInlineMarkdown(raw: string): string {
 
 function extractHeadingParts(raw: string): DocHeadingPart[] | undefined {
   const parts: DocHeadingPart[] = [];
-  const codeSpan = /(`+)(.*?)\1/g;
+  const richPart = /(`+)(.*?)\1|:badge\[([^\]]+)\]/g;
   let cursor = 0;
   let match: RegExpExecArray | null;
 
-  while ((match = codeSpan.exec(raw))) {
+  while ((match = richPart.exec(raw))) {
     const text = stripInlineMarkdownSyntax(raw.slice(cursor, match.index));
     if (text) parts.push({ type: "text", value: text });
-    parts.push({ type: "code", value: match[2] });
+    parts.push(
+      match[3]
+        ? { type: "badge", value: match[3] }
+        : { type: "code", value: match[2] },
+    );
     cursor = match.index + match[0].length;
   }
 
@@ -145,14 +151,24 @@ function extractHeadings(body: string): DocHeading[] {
 /** Sort order mirrors the generated navigation order. */
 const SECTION_ORDER: Record<string, number> = {
   learn: 0,
-  stdlib: 1,
-  upgrading: 2,
+  production: 1,
+  stdlib: 2,
+  upgrading: 3,
 };
 
-const LEARN_GROUP_ORDER: Record<string, number> = {
-  Overview: 0,
-  "Language guide": 1,
-  "Design patterns": 2,
+const GROUP_ORDER: Partial<Record<DocSection, Record<string, number>>> = {
+  learn: {
+    Overview: 0,
+    "Language guide": 1,
+    "Design patterns": 2,
+  },
+  production: {
+    Overview: 0,
+    "Environment setup": 1,
+    "Pipeline development": 2,
+    "Versioning and release": 3,
+    Deployment: 4,
+  },
 };
 
 /**
@@ -255,10 +271,10 @@ export async function compileDocs(options: CompileDocsOptions): Promise<Compiled
   pages.sort((a, b) => {
     const sectionDiff = (SECTION_ORDER[a.section] ?? 99) - (SECTION_ORDER[b.section] ?? 99);
     if (sectionDiff !== 0) return sectionDiff;
-    const rankedGroupDiff =
-      a.section === "learn"
-        ? (LEARN_GROUP_ORDER[a.group] ?? 99) - (LEARN_GROUP_ORDER[b.group] ?? 99)
-        : 0;
+    const sectionGroups = GROUP_ORDER[a.section];
+    const rankedGroupDiff = sectionGroups
+      ? (sectionGroups[a.group] ?? 99) - (sectionGroups[b.group] ?? 99)
+      : 0;
     if (rankedGroupDiff !== 0) return rankedGroupDiff;
     const groupDiff = a.group.localeCompare(b.group);
     if (groupDiff !== 0) return groupDiff;

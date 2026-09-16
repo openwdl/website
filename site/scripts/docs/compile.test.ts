@@ -275,6 +275,39 @@ legacy: []
   ]);
 });
 
+it("orders Production guide groups by the course lifecycle", async () => {
+  for (const [name, group] of [
+    ["deployment", "Deployment"],
+    ["release", "Versioning and release"],
+    ["pipeline", "Pipeline development"],
+    ["overview", "Overview"],
+    ["environment", "Environment setup"],
+  ] as const) {
+    await writeFixture(`${name}.md`, `---
+title: ${name}
+description: Production course page.
+slug: /docs/production/${name}/
+section: production
+group: ${group}
+order: 10
+kind: tutorial
+legacy: []
+---
+# ${name}
+`);
+  }
+
+  const result = await compileDocs({ contentRoot, generatedFile, searchRoot });
+
+  expect(result.pages.map((page) => page.group)).toEqual([
+    "Overview",
+    "Environment setup",
+    "Pipeline development",
+    "Versioning and release",
+    "Deployment",
+  ]);
+});
+
 it("heading extraction preserves underscores in function names (parity with rehype-slug)", async () => {
   await writeFixture("functions.md", `---
 title: Stdlib test

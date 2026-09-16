@@ -4,6 +4,7 @@ import { DocsShell } from "./DocsShell";
 import { MarkdownBody } from "./MarkdownBody";
 import { StdlibPage } from "./StdlibPage";
 import { docHref } from "./docHref";
+import { docTitle } from "./docTitle";
 import { docSectionLabel } from "./docsSections";
 import styles from "./DocsPage.module.css";
 
@@ -62,7 +63,7 @@ export function DocsPage({ page, pages }: DocsPageProps) {
             </li>
           ))}
           <li>
-            <span aria-current="page">{page.title}</span>
+            <span aria-current="page">{docTitle(page)}</span>
           </li>
         </ol>
       </nav>
@@ -74,7 +75,7 @@ export function DocsPage({ page, pages }: DocsPageProps) {
           aria-hidden="true"
         />
       ))}
-      <h1 id={titleId}>{page.title}</h1>
+      <h1 id={titleId}>{docTitle(page)}</h1>
       {page.section === "stdlib" ? (
         <StdlibPage page={page} />
       ) : (
