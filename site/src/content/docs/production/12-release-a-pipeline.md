@@ -22,8 +22,8 @@ from this section's starting point on `origin`:
 git status --short
 # No output is expected.
 git fetch --quiet origin
-git switch --no-track -c chapter/12-release origin/chapter/12-release
-# Switched to a new branch 'chapter/12-release'
+git switch --no-track -c chapter/12-release-a-pipeline origin/chapter/12-release-a-pipeline
+# Switched to a new branch 'chapter/12-release-a-pipeline'
 ```
 
 Your branch and its commits will remain local. Later, you will publish only the release

@@ -22,8 +22,8 @@ from this section's starting point on `origin`:
 git status --short
 # No output is expected.
 git fetch --quiet origin
-git switch --no-track -c chapter/11-github-actions origin/chapter/11-github-actions
-# Switched to a new branch 'chapter/11-github-actions'
+git switch --no-track -c chapter/11-automating-quality origin/chapter/11-automating-quality
+# Switched to a new branch 'chapter/11-automating-quality'
 ```
 
 Your work remains local until the end of this section, when you will publish this branch
@@ -397,8 +397,8 @@ branch to your fork:
 ```bash
 git add .github/workflows/ci.yml
 git commit -m "Add continuous integration and documentation deployment"
-git push fork chapter/11-github-actions
-# ... chapter/11-github-actions -> chapter/11-github-actions
+git push fork chapter/11-automating-quality
+# ... chapter/11-automating-quality -> chapter/11-automating-quality
 ```
 
 Create a pull request inside your fork:
@@ -411,7 +411,7 @@ Create a pull request inside your fork:
 4. Set **base repository** to your fork and **base** to `main`. The base is where the
    proposed changes would go.
 5. Set **head repository** to the same fork and **compare** to
-   `chapter/11-github-actions`. The compare branch contains the proposed changes.
+   `chapter/11-automating-quality`. The compare branch contains the proposed changes.
 6. Check the summary and file list. GitHub should show the commits and files you added
    in this section, with `main` receiving the changes.
 7. Select **Create pull request**. Use `Add continuous integration and documentation
@@ -437,7 +437,7 @@ Follow the workflow from the pull request:
 
 If the job fails, select the failed step and read the first error in its log. Run the same
 command locally, fix the underlying problem, commit the fix, and push the new commit to
-`chapter/11-github-actions`. GitHub adds the commit to the existing pull request and runs
+`chapter/11-automating-quality`. GitHub adds the commit to the existing pull request and runs
 `verify` again.
 
 ## Close the practice pull request

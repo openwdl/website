@@ -23,8 +23,8 @@ from this section's starting point on `origin`:
 git status --short
 # No output is expected.
 git fetch --quiet origin
-git switch --no-track -c chapter/07-workflows origin/chapter/07-workflows
-# Switched to a new branch 'chapter/07-workflows'
+git switch --no-track -c chapter/07-execution-graphs-workflows origin/chapter/07-execution-graphs-workflows
+# Switched to a new branch 'chapter/07-execution-graphs-workflows'
 ```
 
 Your edits and commits will remain on this local branch.

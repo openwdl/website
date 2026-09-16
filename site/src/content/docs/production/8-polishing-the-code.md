@@ -22,8 +22,8 @@ from this section's starting point on `origin`:
 git status --short
 # No output is expected.
 git fetch --quiet origin
-git switch --no-track -c chapter/08-sprocket origin/chapter/08-sprocket
-# Switched to a new branch 'chapter/08-sprocket'
+git switch --no-track -c chapter/08-polishing-the-code origin/chapter/08-polishing-the-code
+# Switched to a new branch 'chapter/08-polishing-the-code'
 ```
 
 Your edits and commits will remain on this local branch.
