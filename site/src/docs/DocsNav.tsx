@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import { FiChevronRight } from "react-icons/fi";
 import type { CompiledDocPage } from "../../scripts/docs/types";
 import { docHref } from "./docHref";
@@ -20,25 +20,12 @@ export interface DocsNavProps {
 
 /**
  * Left page rail: groups visible pages from the active section and marks the
- * current page with `aria-current="page"`.
+ * current page with `aria-current="page"`. Groups open by default and preserve
+ * reader-closed state independently within each documentation section.
  */
 export function DocsNav({ page, pages, id, open }: DocsNavProps) {
   const groupIdPrefix = useId();
-  const [openGroups, setOpenGroups] = useState(
-    () =>
-      new Set(
-        pages
-          .filter((candidate) => !candidate.hidden && candidate.section === page.section)
-          .map((candidate) => candidate.group),
-      ),
-  );
-
-  useEffect(() => {
-    setOpenGroups((current) => {
-      if (current.has(page.group)) return current;
-      return new Set([...current, page.group]);
-    });
-  }, [page.group]);
+  const [closedGroups, setClosedGroups] = useState(() => new Set<string>());
 
   const visible = pages.filter((p) => !p.hidden && p.section === page.section);
   const groupOrder: string[] = [];
@@ -59,7 +46,8 @@ export function DocsNav({ page, pages, id, open }: DocsNavProps) {
       data-open={open !== undefined ? String(open) : undefined}
     >
       {groupOrder.map((group, index) => {
-        const expanded = openGroups.has(group);
+        const stateKey = `${page.section}:${group}`;
+        const expanded = !closedGroups.has(stateKey);
         const groupId = `${groupIdPrefix}-group-${index}`;
         return (
           <div key={group} className={styles.group}>
@@ -69,10 +57,10 @@ export function DocsNav({ page, pages, id, open }: DocsNavProps) {
               aria-expanded={expanded}
               aria-controls={groupId}
               onClick={() => {
-                setOpenGroups((current) => {
+                setClosedGroups((current) => {
                   const next = new Set(current);
-                  if (expanded) next.delete(group);
-                  else next.add(group);
+                  if (expanded) next.add(stateKey);
+                  else next.delete(stateKey);
                   return next;
                 });
               }}

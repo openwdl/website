@@ -56,6 +56,32 @@ const pages: CompiledDocPage[] = [
     body: "",
     headings: [],
   },
+  {
+    title: "Getting started",
+    description: "Build a production pipeline.",
+    slug: "/docs/production/getting-started/",
+    section: "production",
+    group: "Overview",
+    order: 1,
+    kind: "tutorial",
+    legacy: [],
+    sourcePath: "production/1-getting-started.md",
+    body: "",
+    headings: [],
+  },
+  {
+    title: "Release a pipeline",
+    description: "Publish a pipeline release.",
+    slug: "/docs/production/release-a-pipeline/",
+    section: "production",
+    group: "Versioning and release",
+    order: 1,
+    kind: "tutorial",
+    legacy: [],
+    sourcePath: "production/12-release-a-pipeline.md",
+    body: "",
+    headings: [],
+  },
 ];
 
 it("opens all groups by default", () => {
@@ -126,4 +152,25 @@ it("preserves group state when navigating to another documentation page", async 
   ).toHaveAttribute("aria-expanded", "false");
   expect(screen.queryByRole("link", { name: "Linear chaining" }))
     .not.toBeInTheDocument();
+});
+
+it("opens all groups by default when navigating to another section", async () => {
+  const user = userEvent.setup();
+  const { rerender } = render(<DocsNav page={pages[0]} pages={pages} />);
+
+  await user.click(screen.getByRole("button", { name: "Overview" }));
+  expect(screen.getByRole("button", { name: "Overview" }))
+    .toHaveAttribute("aria-expanded", "false");
+
+  rerender(<DocsNav page={pages[4]} pages={pages} />);
+
+  expect(screen.getByRole("button", { name: "Overview" }))
+    .toHaveAttribute("aria-expanded", "true");
+  expect(
+    screen.getByRole("button", { name: "Versioning and release" }),
+  ).toHaveAttribute("aria-expanded", "true");
+  expect(screen.getByRole("link", { name: "Getting started" }))
+    .toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "Release a pipeline" }))
+    .toBeInTheDocument();
 });
