@@ -52,7 +52,7 @@ its Rust source, but you do not need to complete that for the Production guide.
 ## Choose the right download
 
 A GitHub **release** is a published version of a project. The
-[latest `production-wdl-course` release] includes a compiled copy of `ref-summary` for
+[latest `production-guide-tutorial` release] includes a compiled copy of `ref-summary` for
 each supported operating system and processor architecture. A compiled program is also
 called an **executable** or **binary**.
 
@@ -88,7 +88,7 @@ Choose a download approach:
 
 ::::tabs
 :::tab{label="Web browser"}
-1. Open the [latest `production-wdl-course` release].
+1. Open the [latest `production-guide-tutorial` release].
 2. Expand **Assets**.
 3. Download `SHA256SUMS`.
 4. Download the archive that matches the architecture you identified during
@@ -114,7 +114,7 @@ case "$(uname -m)" in
 esac
 
 gh release download \
-  --repo openwdl/production-wdl-course \
+  --repo openwdl/production-guide-tutorial \
   --pattern "$pattern" \
   --pattern SHA256SUMS
 # No output is expected.
@@ -127,7 +127,7 @@ Choose a download approach:
 
 ::::tabs
 :::tab{label="Web browser"}
-1. Open the [latest `production-wdl-course` release].
+1. Open the [latest `production-guide-tutorial` release].
 2. Expand **Assets**.
 3. Download `SHA256SUMS`.
 4. Download the archive that matches the architecture you identified during
@@ -154,7 +154,7 @@ case "$(uname -m)" in
 esac
 
 gh release download \
-  --repo openwdl/production-wdl-course \
+  --repo openwdl/production-guide-tutorial \
   --pattern "$pattern" \
   --pattern SHA256SUMS
 # No output is expected.
@@ -167,7 +167,7 @@ Choose a download approach:
 
 ::::tabs
 :::tab{label="Web browser"}
-1. Open the [latest `production-wdl-course` release].
+1. Open the [latest `production-guide-tutorial` release].
 2. Expand **Assets**.
 3. Download `SHA256SUMS`.
 4. Download the ZIP containing `x86_64-pc-windows-msvc`.
@@ -185,7 +185,7 @@ GitHub CLI can download the Windows archive with `SHA256SUMS`:
 
 ```powershell
 gh release download `
-  --repo openwdl/production-wdl-course `
+  --repo openwdl/production-guide-tutorial `
   --pattern "ref-summary-v*-x86_64-pc-windows-msvc.zip" `
   --pattern SHA256SUMS
 # No output is expected.
@@ -196,7 +196,7 @@ gh release download `
 ::::::
 
 In these commands, `.` means the current directory, which should still be
-`production-wdl-course`.
+`production-guide-tutorial`.
 
 ## Check and extract the download
 
@@ -720,4 +720,4 @@ build information improve reproducibility.
 
 [rustup]: https://rustup.rs/
 [Installing the tools]: /docs/production/installing-the-tools/
-[latest `production-wdl-course` release]: https://github.com/openwdl/production-wdl-course/releases/latest
+[latest `production-guide-tutorial` release]: https://github.com/openwdl/production-guide-tutorial/releases/latest

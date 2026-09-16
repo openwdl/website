@@ -146,7 +146,7 @@ different systems without rewriting its scientific logic
 ## Check your progress
 
 The source code for this tutorial lives in the
-[`openwdl/production-wdl-course`](https://github.com/openwdl/production-wdl-course)
+[`openwdl/production-guide-tutorial`](https://github.com/openwdl/production-guide-tutorial)
 repository. Its `chapter/NN-topic` branches provide reference points. During the Git
 crash course, you will create your own fork and use it to practice GitHub collaboration.
 Every later section starts from its own branch on `origin`, the OpenWDL repository. You

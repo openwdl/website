@@ -526,33 +526,33 @@ and WDL file association work together.
 
 ## Download the course repository
 
-The code for this tutorial lives in the [`openwdl/production-wdl-course`] repository.
+The code for this tutorial lives in the [`openwdl/production-guide-tutorial`] repository.
 We'll use GitHub CLI to copy, or in Git parlance, _clone_, that repository to your
 computer:
 
 ::::tabs{sync="platform"}
 :::tab{label="macOS"}
 ```bash
-gh repo clone openwdl/production-wdl-course
-# Cloning into 'production-wdl-course'...
+gh repo clone openwdl/production-guide-tutorial
+# Cloning into 'production-guide-tutorial'...
 # ...
-cd production-wdl-course
+cd production-guide-tutorial
 ```
 :::
 :::tab{label="Linux"}
 ```bash
-gh repo clone openwdl/production-wdl-course
-# Cloning into 'production-wdl-course'...
+gh repo clone openwdl/production-guide-tutorial
+# Cloning into 'production-guide-tutorial'...
 # ...
-cd production-wdl-course
+cd production-guide-tutorial
 ```
 :::
 :::tab{label="Windows"}
 ```powershell
-gh repo clone openwdl/production-wdl-course
-# Cloning into 'production-wdl-course'...
+gh repo clone openwdl/production-guide-tutorial
+# Cloning into 'production-guide-tutorial'...
 # ...
-Set-Location production-wdl-course
+Set-Location production-guide-tutorial
 ```
 :::
 ::::
@@ -644,7 +644,7 @@ skills you'll use to track the project safely. Continue to
 [Install Docker Engine on RHEL]: https://docs.docker.com/engine/install/rhel/
 [Install Docker Engine on Ubuntu]: https://docs.docker.com/engine/install/ubuntu/
 [brew.sh]: https://brew.sh/
-[`openwdl/production-wdl-course`]: https://github.com/openwdl/production-wdl-course
+[`openwdl/production-guide-tutorial`]: https://github.com/openwdl/production-guide-tutorial
 [Sprocket]: https://github.com/stjude-rust-labs/sprocket
 [Sprocket extension]: https://marketplace.visualstudio.com/items?itemName=stjude-rust-labs.sprocket-vscode
 [latest Sprocket release]: https://github.com/stjude-rust-labs/sprocket/releases/latest

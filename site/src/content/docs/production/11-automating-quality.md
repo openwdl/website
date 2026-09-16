@@ -403,8 +403,8 @@ git push fork chapter/11-github-actions
 
 Create a pull request inside your fork:
 
-1. Open your `production-wdl-course` fork on GitHub. Check the repository owner at the
-   top of the page to make sure you are in your fork, not `openwdl/production-wdl-course`.
+1. Open your `production-guide-tutorial` fork on GitHub. Check the repository owner at the
+   top of the page to make sure you are in your fork, not `openwdl/production-guide-tutorial`.
 2. Select **Pull requests**, then select **New pull request**.
 3. If GitHub initially compares your fork with the OpenWDL repository, select
    **compare across forks** so you can choose both repositories.

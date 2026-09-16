@@ -73,7 +73,7 @@ A **repository** is a project that Git tracks. It includes the current files and
 saved history behind them. In the chair analogy above, the repository is the entire
 workshop: the main production design, every variation being tested on a separate
 workbench, and the history of saved designs. Your terminal should still be inside the
-`production-wdl-course` repository that you cloned in the previous section.
+`production-guide-tutorial` repository that you cloned in the previous section.
 
 Ask Git where you are:
 
@@ -87,8 +87,8 @@ git status
 # nothing to commit, working tree clean
 
 git remote -v
-# origin  https://github.com/openwdl/production-wdl-course.git (fetch)
-# origin  https://github.com/openwdl/production-wdl-course.git (push)
+# origin  https://github.com/openwdl/production-guide-tutorial.git (fetch)
+# origin  https://github.com/openwdl/production-guide-tutorial.git (push)
 ```
 
 A **branch** is a named line of changes. The current branch tells Git which line of
@@ -471,7 +471,7 @@ Create the fork:
 
 ```bash
 gh repo fork --remote --remote-name fork
-# ✓ Created fork YOUR-USERNAME/production-wdl-course
+# ✓ Created fork YOUR-USERNAME/production-guide-tutorial
 # ✓ Added remote fork
 ```
 
@@ -482,10 +482,10 @@ Inspect the connections:
 
 ```bash
 git remote -v
-# fork    https://github.com/YOUR-USERNAME/production-wdl-course.git (fetch)
-# fork    https://github.com/YOUR-USERNAME/production-wdl-course.git (push)
-# origin  https://github.com/openwdl/production-wdl-course.git (fetch)
-# origin  https://github.com/openwdl/production-wdl-course.git (push)
+# fork    https://github.com/YOUR-USERNAME/production-guide-tutorial.git (fetch)
+# fork    https://github.com/YOUR-USERNAME/production-guide-tutorial.git (push)
+# origin  https://github.com/openwdl/production-guide-tutorial.git (fetch)
+# origin  https://github.com/openwdl/production-guide-tutorial.git (push)
 ```
 
 Recall that a **remote** is a named connection from your local repository to another
@@ -555,13 +555,13 @@ owner="$(gh api user --jq .login)"
 # No output is expected.
 
 gh pr create \
-  --repo "$owner/production-wdl-course" \
+  --repo "$owner/production-guide-tutorial" \
   --base chapter/03-git-crash-course \
   --head practice/git-crash-course \
   --draft \
   --title "Practice the Git workflow" \
   --body "This pull request contains my Git crash-course exercise."
-# https://github.com/YOUR-USERNAME/production-wdl-course/pull/1
+# https://github.com/YOUR-USERNAME/production-guide-tutorial/pull/1
 ```
 :::
 :::tab{label="Linux"}
@@ -570,13 +570,13 @@ owner="$(gh api user --jq .login)"
 # No output is expected.
 
 gh pr create \
-  --repo "$owner/production-wdl-course" \
+  --repo "$owner/production-guide-tutorial" \
   --base chapter/03-git-crash-course \
   --head practice/git-crash-course \
   --draft \
   --title "Practice the Git workflow" \
   --body "This pull request contains my Git crash-course exercise."
-# https://github.com/YOUR-USERNAME/production-wdl-course/pull/1
+# https://github.com/YOUR-USERNAME/production-guide-tutorial/pull/1
 ```
 :::
 :::tab{label="Windows"}
@@ -585,13 +585,13 @@ $owner = gh api user --jq .login
 # No output is expected.
 
 gh pr create `
-  --repo "$owner/production-wdl-course" `
+  --repo "$owner/production-guide-tutorial" `
   --base chapter/03-git-crash-course `
   --head practice/git-crash-course `
   --draft `
   --title "Practice the Git workflow" `
   --body "This pull request contains my Git crash-course exercise."
-# https://github.com/YOUR-USERNAME/production-wdl-course/pull/1
+# https://github.com/YOUR-USERNAME/production-guide-tutorial/pull/1
 ```
 :::
 ::::
@@ -602,20 +602,20 @@ Open it in your browser:
 ::::tabs{sync="platform"}
 :::tab{label="macOS"}
 ```bash
-gh pr view --repo "$owner/production-wdl-course" --web
-# Opening https://github.com/YOUR-USERNAME/production-wdl-course/pull/1 in your browser.
+gh pr view --repo "$owner/production-guide-tutorial" --web
+# Opening https://github.com/YOUR-USERNAME/production-guide-tutorial/pull/1 in your browser.
 ```
 :::
 :::tab{label="Linux"}
 ```bash
-gh pr view --repo "$owner/production-wdl-course" --web
-# Opening https://github.com/YOUR-USERNAME/production-wdl-course/pull/1 in your browser.
+gh pr view --repo "$owner/production-guide-tutorial" --web
+# Opening https://github.com/YOUR-USERNAME/production-guide-tutorial/pull/1 in your browser.
 ```
 :::
 :::tab{label="Windows"}
 ```powershell
-gh pr view --repo "$owner/production-wdl-course" --web
-# Opening https://github.com/YOUR-USERNAME/production-wdl-course/pull/1 in your browser.
+gh pr view --repo "$owner/production-guide-tutorial" --web
+# Opening https://github.com/YOUR-USERNAME/production-guide-tutorial/pull/1 in your browser.
 ```
 :::
 ::::
