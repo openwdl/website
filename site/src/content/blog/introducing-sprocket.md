@@ -53,12 +53,12 @@ To begin using the Sprocket VS Code extension, follow these simple steps:
 2. **Configure Sprocket**: Set up the Sprocket executable path by going to your VS Code settings and pointing to the Sprocket installation on your machine.
 3. **Run WDL Workflows**: Open a WDL file in VS Code, and you'll see the Sprocket toolbar to execute and monitor workflows directly from the editor.
 
-For more detailed instructions, you can follow the official [Getting Started Guide for VS Code](https://stjude-rust-labs.github.io/sprocket/vscode/getting-started.html).
+For more detailed instructions, you can follow the official [Getting Started Guide for VS Code](https://sprocket.bio/vscode/getting-started.html).
 
 
 ## Getting Started with Sprocket
 
-Interested in trying out Sprocket for your next project? Head over to the [official Sprocket documentation](https://stjude-rust-labs.github.io/sprocket/overview.html) for detailed installation instructions and usage guides. Whether you are working on local workflows or deploying large-scale computations, Sprocket's flexibility ensures you can adapt it to fit your needs.
+Interested in trying out Sprocket for your next project? Head over to the [official Sprocket documentation](https://sprocket.bio/overview.html) for detailed installation instructions and usage guides. Whether you are working on local workflows or deploying large-scale computations, Sprocket's flexibility ensures you can adapt it to fit your needs.
 
 
 ## What's Next?
